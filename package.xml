@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>gz_rosa_control</name>
+  <version>0.0.0</version>
+  <description>Plugins for running gazebo simulation of ROSA in gazebo</description>
+  <maintainer email="miguel.hernando@upm.es">M. Hernando</maintainer>
+  <license>GPLv3</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>tf2_ros</depend>
+  
+  <build_depend>gazebo_dev</build_depend>
+  <build_depend>gazebo_msgs</build_depend>
+  <build_depend>gazebo_ros</build_depend>
+  <build_depend>rclcpp</build_depend>
+
+  <exec_depend>gazebo_dev</exec_depend>
+  <exec_depend>gazebo_msgs</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
+  
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
