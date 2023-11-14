@@ -17,6 +17,7 @@ find_package(gazebo_dev REQUIRED)
 find_package(gazebo_msgs REQUIRED)
 find_package(gazebo_ros REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
@@ -26,14 +27,14 @@ find_package(tf2_ros REQUIRED)
 
 link_directories(${gazebo_dev_LIBRARY_DIRS})
 
-add_library(gazebo_ros_rosa_control SHARED
-  src/gazebo_ros_planar_move.cpp
+add_library(gazebo_ros_omni_drive SHARED
+  src/gazebo_ros_omni_drive.cpp
 )
 #inlcude here additional include dirs
 #target_include_directories(gazebo_ros_rosa_control PUBLIC include)
 
 #igual es necesario incluir nav_msgs 
-ament_target_dependencies(gazebo_ros_rosa_control
+ament_target_dependencies(gazebo_ros_omni_drive
   "gazebo_dev"
   "gazebo_ros"
   "geometry_msgs"
@@ -41,11 +42,12 @@ ament_target_dependencies(gazebo_ros_rosa_control
   "tf2"
   "tf2_geometry_msgs"
   "tf2_ros"
+  "nav_msgs"
 )
-ament_export_libraries(gazebo_ros_rosa_control)
+ament_export_libraries(gazebo_ros_omni_drive)
 
 install(TARGETS
-  gazebo_ros_rosa_control
+gazebo_ros_omni_drive
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
