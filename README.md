@@ -11,6 +11,10 @@
 *Although the plugin code uses only the gazebo_ros_omni_drive.(cpp,hpp) files, the repo also includes the sources used for the plugin implementation.
 
 *prof.: Miguel Hernando (2023)*
+
+[![Plugin demo with ROSA robot](https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fyoutu.be%2FV3p5xCgLpGY)](https://youtu.be/V3p5xCgLpGY)
+
+
 ### LIB REQUIREMENTS:
 
     sudo apt install ros-foxy-gazebo-dev 
