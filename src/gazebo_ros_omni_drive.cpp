@@ -279,7 +279,7 @@ void GazeboRosOmniDrive::Load(gazebo::physics::ModelPtr _model, sdf::ElementPtr 
   impl_->wheel_max_speed_ = _sdf->Get<double>("wheel_max_speed", 10.0).first;//rad/s
   impl_->wheel_acceleration_ = _sdf->Get<double>("wheel_acceleration", 5.0).first; //rad/s²
   impl_->max_torque_= _sdf->Get<double>("max_torque", 100.0).first; //N/m
-  const char * wjoints[]={"front_left_joint","front_right__joint","rear_left_joint","rear_right_joint"};
+  const char * wjoints[]={"front_left_joint","front_right_joint","rear_left_joint","rear_right_joint"};
   //the four wheels should be specified atherwise the wheel speed simulation is disabled
   impl_->wheel_joints_update=true;
 
