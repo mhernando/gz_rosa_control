@@ -48,9 +48,9 @@ The figure shows the main parameters needed for the similation of omnidirectiona
 - joint_config: a string with 4 integer values (1 or -1). Correction of the joint rotational direction. Its useful to allow the use of the same wheel component for all the wheels but controlling them with a virtual angular velocity. Internally, de FK and the IK, consider a positive velocity of the wheels when they try to move the robot forward.   
  
 
-###example of use in a urdf file:
+### Example of use in a urdf file:
 
-```
+```xml
 <gazebo>
     <plugin name="rosa_controller" filename="libgazebo_ros_omni_drive.so">
       <commandTopic>cmd_vel</commandTopic>
