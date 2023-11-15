@@ -31,21 +31,21 @@
 
 The figure shows the main parameters needed for the similation of omnidirectional drive and also de used conventions.
 
-- commandTopic: 
-- odometryTopic:
-- odometryFrame:
-- odometryRate:
-- robotBaseFrame:
-- wheel_radius:
-- base_lenght:
-- base_width:
-- front_left_joint:
-- rear_left_joint:
-- front_right_wheel:
-- rear_right_wheel:
-- wheel_max_speed:
-- wheel_acceleration:
-- joint_config:
+- commandTopic: Twist topic used as input
+- odometryTopic: topic where publish the odometry data
+- odometryFrame: the TF frame for odometry 
+- odometryRate: (double) Odometry frecuency update [Hz]
+- robotBaseFrame: base frame of the robot
+- wheel_radius: All the 4 wheels have the same radius [meters]
+- base_lenght: (check figure) distance between front and rear wheels [meters]
+- base_width: (check figure) distance between left and right wheels [meters]
+- front_left_joint: joint name of the rotational joint of the referenced wheel
+- rear_left_joint: joint name of the rotational joint of the referenced wheel
+- front_right_wheel: joint name of the rotational joint of the referenced wheel
+- rear_right_wheel: joint name of the rotational joint of the referenced wheel
+- wheel_max_speed: maximun allowed ratational speed [rad/sec] 
+- wheel_acceleration: angular acceleration of the wheel [rad/sec^2]
+- joint_config: a string with 4 integer values (1 or -1). Correction of the joint rotational direction. Its useful to allow the use of the same wheel component for all the wheels but controlling them with a virtual angular velocity. Internally, de FK and the IK, consider a positive velocity of the wheels when they try to move the robot forward.   
  
 
 ###example of use in a urdf file:
