@@ -21,7 +21,8 @@ git clone https://github.com/mhernando/gz_rosa_control.git
 sudo rosdep init
 rosdep update
 rosdep install --from-paths src/gz_rosa_control -y --ignore-src
-
+colcon build --symlink-install
+source install/setup.sh
 ```
 
 
