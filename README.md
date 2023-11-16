@@ -26,7 +26,7 @@ rosdep install --from-paths src/gz_rosa_control -y --ignore-src
 
 
 
-### LIB REQUIREMENTS (?):
+### LIB REQUIREMENTS
 
     sudo apt install ros-foxy-gazebo-dev 
     sudo apt install ros-foxy-gazebo-msgs 
