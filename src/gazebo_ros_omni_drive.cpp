@@ -98,6 +98,9 @@ public:
   /// \param[in] _current_time Current simulation time
   void PublishOdometryTf(const gazebo::common::Time & _current_time);
 
+ /// Publish wheels transforms
+  void PublishWheelsTf(const gazebo::common::Time & _current_time);
+
   /// Computes the wheels speeds and as consecuence the real twist
   /// updates the wheel joint speeds in gazebo
   /// \param[in] _dt step time in seconds
@@ -157,7 +160,8 @@ public:
 
   /// Robot base frame ID
   std::string robot_base_frame_;
-
+  /// True to publish wheel tf messages.
+  bool publish_wheel_tf_;
   /// True to publish odometry messages.
   bool publish_odom_;
 
@@ -233,9 +237,12 @@ void GazeboRosOmniDrive::Load(gazebo::physics::ModelPtr _model, sdf::ElementPtr 
     RCLCPP_INFO(impl_->ros_node_->get_logger(), "Advertise odometry on [%s]", impl_->odometry_pub_->get_topic_name());
   }
 
+  impl_->publish_odom_ = _sdf->Get<bool>("publish_odom", true).first;
+  
   // Broadcast TF
   impl_->publish_odom_tf_ = _sdf->Get<bool>("publish_odom_tf", true).first;
-  if (impl_->publish_odom_tf_) {
+  
+  if (impl_->publish_odom_tf_ ) {
     impl_->transform_broadcaster_ =
       std::make_shared<tf2_ros::TransformBroadcaster>(impl_->ros_node_);
 
@@ -304,33 +311,19 @@ void GazeboRosOmniDrive::Load(gazebo::physics::ModelPtr _model, sdf::ElementPtr 
       }
     }
   }
-  /*
-   // Create TF broadcaster if needed
-  impl_->publish_wheel_tf_ = _sdf->Get<bool>("publish_wheel_tf", false).first;
-  impl_->publish_odom_tf_ = _sdf->Get<bool>("publish_odom_tf", false).first;
-      if (impl_->publish_wheel_tf_ || impl_->publish_odom_tf_) {
+  
+  impl_->publish_wheel_tf_ = false;
+  if(impl_->wheel_joints_update)
+    impl_->publish_wheel_tf_ = _sdf->Get<bool>("publish_wheel_tf", false).first;
+  
+  // Create the TF broadcaster if needed
+  if (impl_->publish_wheel_tf_ && impl_->transform_broadcaster_ == nullptr) {
     impl_->transform_broadcaster_ =
       std::make_shared<tf2_ros::TransformBroadcaster>(impl_->ros_node_);
- 
+      RCLCPP_INFO(impl_->ros_node_->get_logger(), "Creating tf broadcaster for wheel tfs");
+  }
 
-    if (impl_->publish_odom_tf_) {
-      RCLCPP_INFO(
-        impl_->ros_node_->get_logger(),
-        "Publishing odom transforms between [%s] and [%s]", impl_->odometry_frame_.c_str(),
-        impl_->robot_base_frame_.c_str());
-    }
 
-    for (index = 0; index < impl_->num_wheel_pairs_; ++index) {
-      if (impl_->publish_wheel_tf_) {
-        RCLCPP_INFO(
-          impl_->ros_node_->get_logger(),
-          "Publishing wheel transforms between [%s], [%s] and [%s]",
-          impl_->robot_base_frame_.c_str(),
-          impl_->joints_[2 * index + GazeboRosDiffDrivePrivate::LEFT]->GetName().c_str(),
-          impl_->joints_[2 * index + GazeboRosDiffDrivePrivate::RIGHT]->GetName().c_str());
-      }
-    }
-   */
 }
 
 void GazeboRosOmniDrive::Reset()
@@ -368,10 +361,7 @@ void GazeboRosOmniDrivePrivate::OnUpdate(const gazebo::common::UpdateInfo & _inf
   double seconds_since_last_update = (_info.simTime - last_update_time_).Double();
 
   std::lock_guard<std::mutex> scoped_lock(lock_);
-#ifdef IGN_PROFILER_ENABLE
-  IGN_PROFILE("GazeboRosPlanarMovePrivate::OnUpdate");
-  IGN_PROFILE_BEGIN("fill ROS message");
-#endif
+
   if (seconds_since_last_update >= update_period_) {
     ignition::math::Pose3d pose = model_->WorldPose();
 
@@ -405,40 +395,20 @@ void GazeboRosOmniDrivePrivate::OnUpdate(const gazebo::common::UpdateInfo & _inf
 
     last_update_time_ = _info.simTime;
   }
-#ifdef IGN_PROFILER_ENABLE
-  IGN_PROFILE_END();
-#endif
+
   if (publish_odom_ || publish_odom_tf_) {
     double seconds_since_last_publish = (_info.simTime - last_publish_time_).Double();
 
     if (seconds_since_last_publish < publish_period_) {
       return;
     }
-#ifdef IGN_PROFILER_ENABLE
-    IGN_PROFILE_BEGIN("UpdateOdometry");
-#endif
+
     UpdateOdometry(_info.simTime);
-#ifdef IGN_PROFILER_ENABLE
-    IGN_PROFILE_END();
-#endif
-    if (publish_odom_) {
-#ifdef IGN_PROFILER_ENABLE
-      IGN_PROFILE_BEGIN("publish odometry");
-#endif
-      odometry_pub_->publish(odom_);
-#ifdef IGN_PROFILER_ENABLE
-      IGN_PROFILE_END();
-#endif
-    }
-    if (publish_odom_tf_) {
-#ifdef IGN_PROFILER_ENABLE
-      IGN_PROFILE_BEGIN("publish odometryTF");
-#endif
-      PublishOdometryTf(_info.simTime);
-#ifdef IGN_PROFILER_ENABLE
-      IGN_PROFILE_END();
-#endif
-    }
+
+
+    if (publish_wheel_tf_)PublishWheelsTf(_info.simTime);
+    if (publish_odom_)odometry_pub_->publish(odom_);
+    if (publish_odom_tf_) PublishOdometryTf(_info.simTime);
 
     last_publish_time_ = _info.simTime;
   }
@@ -494,6 +464,7 @@ void GazeboRosOmniDrivePrivate::UpdateOdometry(const gazebo::common::Time & _cur
   odom_.header.stamp = gazebo_ros::Convert<builtin_interfaces::msg::Time>(_current_time);
 }
 
+
 void GazeboRosOmniDrivePrivate::PublishOdometryTf(const gazebo::common::Time & _current_time)
 {
   geometry_msgs::msg::TransformStamped msg;
@@ -503,6 +474,22 @@ void GazeboRosOmniDrivePrivate::PublishOdometryTf(const gazebo::common::Time & _
   msg.transform = gazebo_ros::Convert<geometry_msgs::msg::Transform>(odom_.pose.pose);
 
   transform_broadcaster_->sendTransform(msg);
+}
+
+void GazeboRosOmniDrivePrivate::PublishWheelsTf(const gazebo::common::Time & _current_time)
+{
+  /*for (unsigned int i = 0; i < 2 * num_wheel_pairs_; ++i) {
+    auto pose_wheel = joints_[i]->GetChild()->RelativePose();
+
+    geometry_msgs::msg::TransformStamped msg;
+    msg.header.stamp = gazebo_ros::Convert<builtin_interfaces::msg::Time>(_current_time);
+    msg.header.frame_id = joints_[i]->GetParent()->GetName();
+    msg.child_frame_id = joints_[i]->GetChild()->GetName();
+    msg.transform.translation = gazebo_ros::Convert<geometry_msgs::msg::Vector3>(pose_wheel.Pos());
+    msg.transform.rotation = gazebo_ros::Convert<geometry_msgs::msg::Quaternion>(pose_wheel.Rot());
+
+    transform_broadcaster_->sendTransform(msg);
+  }*/
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboRosOmniDrive)
