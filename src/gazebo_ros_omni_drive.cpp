@@ -478,18 +478,18 @@ void GazeboRosOmniDrivePrivate::PublishOdometryTf(const gazebo::common::Time & _
 
 void GazeboRosOmniDrivePrivate::PublishWheelsTf(const gazebo::common::Time & _current_time)
 {
-  /*for (unsigned int i = 0; i < 2 * num_wheel_pairs_; ++i) {
-    auto pose_wheel = joints_[i]->GetChild()->RelativePose();
+  for (auto j: wheel_joints_) {
+    auto pose_wheel = j->GetChild()->RelativePose();
 
     geometry_msgs::msg::TransformStamped msg;
     msg.header.stamp = gazebo_ros::Convert<builtin_interfaces::msg::Time>(_current_time);
-    msg.header.frame_id = joints_[i]->GetParent()->GetName();
-    msg.child_frame_id = joints_[i]->GetChild()->GetName();
+    msg.header.frame_id = j->GetParent()->GetName();
+    msg.child_frame_id = j->GetChild()->GetName();
     msg.transform.translation = gazebo_ros::Convert<geometry_msgs::msg::Vector3>(pose_wheel.Pos());
     msg.transform.rotation = gazebo_ros::Convert<geometry_msgs::msg::Quaternion>(pose_wheel.Rot());
 
     transform_broadcaster_->sendTransform(msg);
-  }*/
+  }
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboRosOmniDrive)
