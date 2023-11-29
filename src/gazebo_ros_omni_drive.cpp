@@ -314,7 +314,7 @@ void GazeboRosOmniDrive::Load(gazebo::physics::ModelPtr _model, sdf::ElementPtr 
   
   impl_->publish_wheel_tf_ = false;
   if(impl_->wheel_joints_update)
-    impl_->publish_wheel_tf_ = _sdf->Get<bool>("publish_wheel_tf", false).first;
+    impl_->publish_wheel_tf_ = _sdf->Get<bool>("publish_wheel_tf", true).first;
   
   // Create the TF broadcaster if needed
   if (impl_->publish_wheel_tf_ && impl_->transform_broadcaster_ == nullptr) {
@@ -478,6 +478,7 @@ void GazeboRosOmniDrivePrivate::PublishOdometryTf(const gazebo::common::Time & _
 
 void GazeboRosOmniDrivePrivate::PublishWheelsTf(const gazebo::common::Time & _current_time)
 {
+  //RCLCPP_INFO(ros_node_->get_logger(), "Wheels TF published");
   for (auto j: wheel_joints_) {
     auto pose_wheel = j->GetChild()->RelativePose();
 
