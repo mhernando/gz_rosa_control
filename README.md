@@ -6,7 +6,7 @@
 
 *The planar move used includes an interesting correction made by F.M. Rico <https://github.com/ros-simulation/gazebo_ros_pkgs/pull/1504/commits> in 2023
 
-*The plugin is partially operative It computes de Fk and IK and uses a simplified velocity controller for the wheels if used. No wheels tf broadcasting is made at this stage, but i hope it would be included soon. 
+*The plugin is partially operative It computes de Fk and IK and uses a simplified velocity controller for the wheels if used. tf broadcasting of wheels is made by default. 
 
 *Although the plugin code uses only the gazebo_ros_omni_drive.(cpp,hpp) files, the repo also includes the sources used for the plugin implementation.
 
